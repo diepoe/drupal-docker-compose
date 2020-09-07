@@ -30,6 +30,8 @@ services:
 
   postgres:
     image: postgres:10
+    volumes:
+      - ./database:/var/lib/postgresql
     environment:
       POSTGRES_PASSWORD: example
     restart: always
