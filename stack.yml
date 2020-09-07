@@ -1,7 +1,7 @@
 # Drupal with PostgreSQL
 #
-# Access via "http://localhost:8080"
-#   (or "http://$(docker-machine ip):8080" if using docker-machine)
+# Access via "http://localhost:80"
+#   (or "http://$(docker-machine ip):80" if using docker-machine)
 #
 # During initial Drupal setup,
 # Database type: PostgreSQL
@@ -30,6 +30,7 @@ services:
 
   postgres:
     image: postgres:10
+    # volume to take database data outside of container
     volumes:
       - ./database:/var/lib/postgresql
     environment:
