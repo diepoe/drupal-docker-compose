@@ -15,7 +15,7 @@ version: '3.1'
 services:
 
   drupal:
-    image: drupal:8-apache
+    image: drupal:9-apache
     ports:
       - 80:80
     volumes:
