@@ -17,7 +17,7 @@ services:
   drupal:
     image: drupal:9-apache
     ports:
-      - 80:80
+      - 89:80
     volumes:
       - /var/www/html/modules
       - /var/www/html/profiles
@@ -27,6 +27,11 @@ services:
       # existing content of the image at the same location
       - /var/www/html/sites
     restart: always
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.cal.rule=Host(`my-url.net`)"
+      - "traefik.http.routers.cal.entrypoints=web"
+      - "traefik.http.services.cal.loadbalancer.server.port=89"
 
   postgres:
     image: postgres:10
