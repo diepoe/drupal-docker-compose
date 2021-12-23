@@ -17,9 +17,9 @@ services:
     restart: always
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.cal.rule=Host(`my-url.net`)"
-      - "traefik.http.routers.cal.entrypoints=web"
-      - "traefik.http.services.cal.loadbalancer.server.port=89"
+      - "traefik.http.routers.drupal.rule=Host(`my-url.net`)"
+      - "traefik.http.routers.drupal.entrypoints=web"
+      - "traefik.http.services.drupal.loadbalancer.server.port=89"
 
   postgres:
     image: postgres:10
@@ -64,9 +64,9 @@ services:
       - mariadb
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.cal.rule=Host(`moodle.my-url.net`)"
-      - "traefik.http.routers.cal.entrypoints=web"
-      - "traefik.http.services.cal.loadbalancer.server.port=8443"
+      - "traefik.http.routers.moodle.rule=Host(`moodle.my-url.net`)"
+      - "traefik.http.routers.moodle.entrypoints=web"
+      - "traefik.http.services.moodle.loadbalancer.server.port=8443"
   
   traefik:
     image: traefik:v2.0
