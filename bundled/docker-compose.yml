@@ -1,0 +1,94 @@
+version: '3'
+
+services:
+
+  drupal:
+    image: drupal:9-apache
+    ports:
+      - 89:80
+    volumes:
+      - /var/www/html/modules
+      - /var/www/html/profiles
+      - /var/www/html/themes
+      # this takes advantage of the feature in Docker that a new anonymous
+      # volume (which is what we're creating here) will be initialized with the
+      # existing content of the image at the same location
+      - /var/www/html/sites
+    restart: always
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.cal.rule=Host(`my-url.net`)"
+      - "traefik.http.routers.cal.entrypoints=web"
+      - "traefik.http.services.cal.loadbalancer.server.port=89"
+
+  postgres:
+    image: postgres:10
+    # volume to take database data outside of container
+    volumes:
+      - ./database:/var/lib/postgresql
+    environment:
+      POSTGRES_PASSWORD: example
+    restart: always
+
+  
+  mariadb:
+    image: docker.io/bitnami/mariadb:10.3
+    environment:
+      # ALLOW_EMPTY_PASSWORD is recommended only for development.
+      - ALLOW_EMPTY_PASSWORD=no
+      - MARIADB_USER=bn_moodle
+      - MARIADB_PASSWORD=changeme
+      - MARIADB_ROOT_PASSWORD=changeme
+      - MARIADB_DATABASE=bitnami_moodle
+      - MARIADB_CHARACTER_SET=utf8mb4
+      - MARIADB_COLLATE=utf8mb4_unicode_ci
+    volumes:
+      - 'mariadb_data:/bitnami/mariadb'
+  moodle:
+    image: docker.io/bitnami/moodle:3
+    ports:
+      - '808:8080'
+      - '8443:8443'
+    environment:
+      - MOODLE_DATABASE_HOST=mariadb
+      - MOODLE_DATABASE_PORT_NUMBER=3306
+      - MOODLE_DATABASE_USER=bn_moodle
+      - MOODLE_DATABASE_PASSWORD=changeme
+      - MOODLE_DATABASE_NAME=bitnami_moodle
+      # ALLOW_EMPTY_PASSWORD is recommended only for development.
+      - ALLOW_EMPTY_PASSWORD=no
+    volumes:
+      - 'moodle_data:/bitnami/moodle'
+      - 'moodledata_data:/bitnami/moodledata'
+    depends_on:
+      - mariadb
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.cal.rule=Host(`moodle.my-url.net`)"
+      - "traefik.http.routers.cal.entrypoints=web"
+      - "traefik.http.services.cal.loadbalancer.server.port=8443"
+  
+  traefik:
+    image: traefik:v2.0
+    container_name: traefik
+    command:
+      - "--api.insecure=true"
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entrypoints.web.address=:80"
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "8080:8080"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+
+
+
+volumes:
+  mariadb_data:
+    driver: local
+  moodle_data:
+    driver: local
+  moodledata_data:
+    driver: local
